@@ -64,6 +64,13 @@ class SceneMain extends Phaser.Scene {
       laser: this.sound.add('sndLaser'),
     };
 
+    this.backgrounds = [];
+    for (var i = 0; i < 5; i++) {
+      // create five scrolling backgrounds
+      var bg = new ScrollingBackground(this, 'sprBg0', i * 10);
+      this.backgrounds.push(bg);
+    }
+
     this.player = new Player(
       this,
       this.game.config.width * 0.5,
@@ -119,6 +126,7 @@ class SceneMain extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.enemies, function (player, enemy) {
       if (!player.getData('isDead') && !enemy.getData('isDead')) {
         player.explode(false);
+        player.onDestroy();
         enemy.explode(true);
       }
     });
@@ -126,6 +134,7 @@ class SceneMain extends Phaser.Scene {
     this.physics.add.overlap(this.player, this.enemyLasers, function (player, laser) {
       if (!player.getData('isDead') && !laser.getData('isDead')) {
         player.explode(false);
+        player.onDestroy();
         laser.destroy();
       }
     });
@@ -153,6 +162,10 @@ class SceneMain extends Phaser.Scene {
         this.player.setData('timerShootTick', this.player.getData('timerShootDelay') - 1);
         this.player.setData('isShooting', false);
       }
+    }
+
+    if (this.player.getData('isDead')) {
+      this.player.setData('isShooting', false);
     }
 
     for (var i = 0; i < this.enemies.getChildren().length; i++) {
@@ -206,6 +219,10 @@ class SceneMain extends Phaser.Scene {
           laser.destroy();
         }
       }
+    }
+
+    for (var i = 0; i < this.backgrounds.length; i++) {
+      this.backgrounds[i].update();
     }
   }
 
